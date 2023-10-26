@@ -3,7 +3,8 @@
 # However, we will use a more powerful and simpler library called requests.
 # This is external library that you may need to install first.
 import requests
-
+import json
+import datetime
 
 def get_data():
     # With requests, we can ask the web service for the data.
@@ -31,31 +32,22 @@ def get_data():
 
     # We need to interpret the text to get values that we can work with.
     # What format is the text in? How can we load the values?
-    return ...
+    return json.loads(text)
 
 def count_earthquakes(data):
     """Get the total number of earthquakes in the response."""
-    return ...
-
+    return data["metadata"]["count"]
 
 def get_magnitude(earthquake):
     """Retrive the magnitude of an earthquake item."""
-    return ...
+    return data["properties"]["mag"]
+
+def year_data(earthquake):
+    return datetime.datetime.fromtimestamp(earthquake["properties"]["time"] / 1000)
+
+def year_data()
 
 
-def get_location(earthquake):
-    """Retrieve the latitude and longitude of an earthquake item."""
-    # There are three coordinates, but we don't care about the third (altitude)
-    return ...
-
-
-def get_maximum(data):
-    """Get the magnitude and location of the strongest earthquake in the data."""
-    ...
-
-
-# With all the above functions defined, we can now call them and get the result
 data = get_data()
-print(f"Loaded {count_earthquakes(data)}")
-max_magnitude, max_location = get_maximum(data)
-print(f"The strongest earthquake was at {max_location} with magnitude {max_magnitude}")
+print(year_data(data["features"][90]))
+#print(f"Loaded {count_earthquakes(data)}")
