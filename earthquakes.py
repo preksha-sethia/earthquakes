@@ -1,14 +1,11 @@
-# The Python standard library includes some functionality for communicating
-# over the Internet.
-# However, we will use a more powerful and simpler library called requests.
-# This is external library that you may need to install first.
 import requests
 import json
 import datetime
+import numpy as np
+import matplotlib.pyplot as plt
 
 def get_data():
-    # With requests, we can ask the web service for the data.
-    # Can you understand the parameters we are passing here?
+    """Retrieve the data we will be working with."""
     response = requests.get(
         "http://earthquake.usgs.gov/fdsnws/event/1/query.geojson",
         params={
@@ -21,33 +18,46 @@ def get_data():
             "endtime": "2018-10-11",
             "orderby": "time-asc"}
     )
-
-    # The response we get back is an object with several fields.
-    # The actual contents we care about are in its text field:
     text = response.text
-    # To understand the structure of this text, you may want to save it
-    # to a file and open it in VS Code or a browser.
-    # See the README file for more information.
-    ...
-
-    # We need to interpret the text to get values that we can work with.
-    # What format is the text in? How can we load the values?
-    return json.loads(text)
+    dic = json.loads(text)
+    return dic
 
 def count_earthquakes(data):
-    """Get the total number of earthquakes in the response."""
     return data["metadata"]["count"]
 
 def get_magnitude(earthquake):
-    """Retrive the magnitude of an earthquake item."""
-    return data["properties"]["mag"]
+    return earthquake["properties"]["mag"]  # Fix here
 
 def year_data(earthquake):
-    return datetime.datetime.fromtimestamp(earthquake["properties"]["time"] / 1000)
+    return datetime.datetime.fromtimestamp(earthquake["properties"]["time"] / 1000).year  # Get only the year
 
-def year_data()
+def earthquake_magnitudes_per_year(earthquakes):
+    dict_year = {}
+    for earth in earthquakes["features"]:
+        year = year_data(earth)
+        if year in dict_year:
+            dict_year[year].append(get_magnitude(earth))
+        else:
+            dict_year[year] = [get_magnitude(earth)]
+    return dict_year
 
+def plot_number_per_year(earthquakes):
+    dict = earthquake_magnitudes_per_year(earthquakes)
+    year_list = list(dict.keys())
+    year_list.sort()
+    num_list = [len(dict[year]) for year in year_list]
+    
+    year_list = np.array(year_list)
+    num_list = np.array(num_list)
+    
+    plt.title('Number of Earthquakes Per Year')
+    plt.plot(year_list, num_list, label='Earthquakes')
+    plt.legend()
+    plt.xlabel('Year')
+    plt.xticks(year_list, rotation=45)
+    plt.ylabel('Number')
+    plt.tight_layout()
+    plt.show()
 
 data = get_data()
-print(year_data(data["features"][90]))
-#print(f"Loaded {count_earthquakes(data)}")
+plot_number_per_year(data)
